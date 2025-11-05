@@ -30,4 +30,45 @@ function horizonalLoop(items, config) {
     let xPercents = [];
     let pixelsPerSecond = (config.speed || 1) * 100;
     let totalWidth, curX, distanceToStart, distanceToLoop, item, i;
+
+    gsap.set(items, {
+        xPercent: (i, el) => {
+            let w = (widths[i] =  parseFloat(gsap.getProperty(el, "width", "px")));
+            xPercents[i] =(parseFloat(gsap.getProperty(el, "x", "px")) / w) * 100  + gsap.getProperty(e1, "xPercent");
+
+            return xPercents[i];
+        },
+
+    });
+
+    gsap.set(items, { x: 0});
+    totalWidth = items[length - 1].offsetWidth * gsap.getProperty(items[length - 1], "scaleX") + (parseFloat(config.paddingRight) || 0);
+
+    for ( i=0 ; 1 <length; i++) {
+        item = items[i];
+        curX = (xPercents[i] / 100) * widths[i];
+        distanceToStart = item.offsetLeft + curX - startX;
+        distanceToLoop = distanceToStart + widths[i] * gsap.getProperty(item, "scaleX");
+
+        t1.to(
+            item, 
+            {
+                xPercent: ((curX - distanceToLoop) / widths[i]) * 100,
+                duration: distanceToLoop / pixelsPerSecond,
+            },
+            0
+        ).fromTo(
+            item, 
+            { xPercent: ((curX - distanceToLoop + totalWidth) / widths[i])*100},
+            {
+                xPercent:xPercents[i],
+                duration:(curX - distanceToLoop + totalWidth -curX) / pixelsPerSecond,
+                immediateRender:false,
+            },
+            distanceToLoop / pixelsPerSecond
+        );
+    }
+
+    t1.progress(1, true). progress(0, true);
+    return t1;
 }
